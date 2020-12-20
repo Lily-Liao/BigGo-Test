@@ -10,12 +10,16 @@ while True:
  
 leaf="*"
 a=[]
+#根據規律寫出其演算法
 for i in range(1,2*layout,2):
   for j in range(i,i+2*(layout-1)+1,2):
     a.append(j)
+
+#將葉子從中間對齊列印出來
 for k in a:
   print((leaf*k).center(max(a)," "))
- 
+
+#印出樹幹的部分 
 for p in range(1,layout):
   print("***".center(max(a)," "))
 

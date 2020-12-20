@@ -3,16 +3,16 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+#取得url相關內容與狀態
 def get_resource(url):
-    # headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-    #            "AppleWebKit/537.36 (KHTML, like Gecko)"
-    #            "Chrome/63.0.3239.132 Safari/537.36"}
     headers = {
                 'User-Agent': 'Googlebot'
-    }           
+    }
+
     return requests.get(url, headers=headers,allow_redirects=True )
 
 def parse_html(r):
+    #檢查HTTP回應碼是否為200(200表示內容取得成功)
     if r.status_code == 200:
         r.encoding = "utf8"
         soup = BeautifulSoup(r.text, "html.parser")        
@@ -21,6 +21,7 @@ def parse_html(r):
         soup = None
     return soup 
 
+#根據網頁的內容將其處理成字典，好方便後續轉換查詢
 def word_process():
     url='https://phabricator.wikimedia.org/source/mediawiki/browse/master/languages/data/ZhConversion.php'
     soup=parse_html(get_resource(url))
@@ -39,6 +40,7 @@ def word_process():
             chinese_dic.update(new)
     return chinese_dic
 
+#先將句子用jieba斷詞，再將斷詞透過自己編寫的字典做查詢
 def chinese_convert(sentence,chinese_dic):
     cut_word=jieba.cut(sentence,HMM=True)
     words = [word for word in cut_word]
