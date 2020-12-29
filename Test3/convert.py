@@ -9,12 +9,11 @@ def get_resource(url):
                 'User-Agent': 'Googlebot'
     }
 
-    return requests.get(url, headers=headers,allow_redirects=True )
+    return requests.get(url, headers=headers)
 
 def parse_html(r):
     #檢查HTTP回應碼是否為200(200表示內容取得成功)
     if r.status_code == 200:
-        r.encoding = "utf8"
         soup = BeautifulSoup(r.text, "html.parser")        
     else:
         print("HTTP請求錯誤...")
@@ -33,6 +32,7 @@ def word_process():
     chinese_dic=dict()
     for word in all_word:
         r = re.search(pattern,word)
+        new = {}
         if r is not None:
             r1 = r.group(1).strip()
             r2 = r.group(2).strip()
@@ -45,17 +45,22 @@ def chinese_convert(sentence,chinese_dic):
     cut_word=jieba.cut(sentence,HMM=True)
     words = [word for word in cut_word]
     convert_sentence=[]
+
     for word in words:
-        if chinese_dic.get(word) is None:
-            if len(word) > 1:
-                for letter in word:
-                    if chinese_dic.get(letter) is None:
-                        convert_sentence.append(letter)
-                    else:
-                        convert_sentence.append(chinese_dic.get(letter))
-            else:
-                convert_sentence.append(word)
-        else:  
-            convert_sentence.append(chinese_dic.get(word))
+        convert_sentence.append(''.join([letter if chinese_dic.get(letter) is None else chinese_dic.get(letter) for letter in word]) if chinese_dic.get(word) is None and len(word) > 1 
+        else word if chinese_dic.get(word) is None and len(word)==1 else chinese_dic.get(word))
+
+    #下段程式碼與上面程式碼意思一樣
+    # for word in words:
+    #     if chinese_dic.get(word) is None and len(word) > 1:
+    #         sentence=[letter if chinese_dic.get(letter) is None else chinese_dic.get(letter) for letter in word]
+    #         convert_sentence.append(''.join(sentence))
+                
+    #     elif chinese_dic.get(word) is None and len(word)==1:
+    #         convert_sentence.append(word)
+    #     else:  
+    #         convert_sentence.append(chinese_dic.get(word))
+       
     output=''.join(convert_sentence)
     return output
+

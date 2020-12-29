@@ -2,11 +2,12 @@ import convert
 import requests
 from bs4 import BeautifulSoup
 import csv
+import time
+import random
 
 #經過觀察，發現可透過蝦皮url裡的page指定頁數進行切換
 url = 'https://shopee.tw/%E7%8E%A9%E5%85%B7-cat.75.2185?brands=5005&locations=-1&page=0&ratingFilter=4'
-pre_part_url = 'https://shopee.tw/%E7%8E%A9%E5%85%B7-cat.75.2185?brands=5005&locations=-1&page='
-last_part_url = '&ratingFilter=4'
+
 
 #爬取當前頁面蝦皮的產品標題與價格
 def shopee_info(url):
@@ -32,12 +33,12 @@ def shopee_info(url):
 
         #價格在一區間
         if len(product_price)>1:
-            product_price_range = [i.text for i in product_price]
-            all_product_price.append(product_price_range)
+            product_price_range = [i.text for i in product_price]    
         #價格為固定數值
         else:
             product_price_range = [product_price[0].text]
-            all_product_price.append(product_price_range)
+        
+        all_product_price.append(product_price_range)
 
     return all_product_title,all_product_price
 
@@ -52,7 +53,8 @@ if __name__=='__main__':
 
     #一頁一頁爬取相關資訊
     for i in range(total_page):
-        full_url = pre_part_url+str(i)+last_part_url
+        # full_url = pre_part_url+str(i)+last_part_url
+        full_url = f'https://shopee.tw/%E7%8E%A9%E5%85%B7-cat.75.2185?brands=5005&locations=-1&page={i}&ratingFilter=4'
         print(full_url)
         product_title, product_price = shopee_info(full_url)
         print(len(product_title),len(product_price))
@@ -64,6 +66,8 @@ if __name__=='__main__':
                 price = '${}'.format(price[0])
 
             all_info.append({'title' : title, 'price' : price})
+        #隨機停 1~5 秒
+        time.sleep(random.uniform(1, 5))
     
     #將檔案寫入csv檔
     csv_columns=['title','price']
